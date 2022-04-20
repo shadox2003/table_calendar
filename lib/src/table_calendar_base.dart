@@ -11,6 +11,7 @@ class TableCalendarBase extends StatefulWidget {
   final DateTime firstDay;
   final DateTime lastDay;
   final DateTime focusedDay;
+  final DateTime currentDay;
   final CalendarFormat calendarFormat;
   final DayBuilder? dowBuilder;
   final FocusedDayBuilder dayBuilder;
@@ -30,7 +31,7 @@ class TableCalendarBase extends StatefulWidget {
   final AvailableGestures availableGestures;
   final SimpleSwipeConfig simpleSwipeConfig;
   final Map<CalendarFormat, String> availableCalendarFormats;
-  final SwipeCallback? onVerticalSwipe;
+  final Function(SwipeDirection direction, bool cross)? onVerticalSwipe;
   final void Function(DateTime focusedDay)? onPageChanged;
   final void Function(PageController pageController)? onCalendarCreated;
 
@@ -39,6 +40,7 @@ class TableCalendarBase extends StatefulWidget {
     required this.firstDay,
     required this.lastDay,
     required this.focusedDay,
+    required this.currentDay,
     this.calendarFormat = CalendarFormat.month,
     this.dowBuilder,
     required this.dayBuilder,
@@ -77,29 +79,50 @@ class TableCalendarBase extends StatefulWidget {
   _TableCalendarBaseState createState() => _TableCalendarBaseState();
 }
 
-class _TableCalendarBaseState extends State<TableCalendarBase> {
+class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTickerProviderStateMixin {
   late final ValueNotifier<double> _pageHeight;
   late final PageController _pageController;
   late DateTime _focusedDay;
   late int _previousIndex;
   late bool _pageCallbackDisabled;
+  late AnimationController _controller;
+  late double _oldHeight;
+  Animation? _animation;
+  late double realHeight;
+  bool isDrag = false;
+  CalendarFormat _format = CalendarFormat.month;
+  late SwipeDirection _direction;
 
   @override
   void initState() {
     super.initState();
     _focusedDay = widget.focusedDay;
-
-    final rowCount = _getRowCount(widget.calendarFormat, _focusedDay);
+    final rowCount = _getRowCount(_format, _focusedDay);
     _pageHeight = ValueNotifier(_getPageHeight(rowCount));
+    _oldHeight = _pageHeight.value;
+    realHeight = _pageHeight.value;
 
-    final initialPage = _calculateFocusedPage(
-        widget.calendarFormat, widget.firstDay, _focusedDay);
+    final initialPage = _calculateFocusedPage(_format, widget.firstDay, _focusedDay);
 
     _pageController = PageController(initialPage: initialPage);
     widget.onCalendarCreated?.call(_pageController);
 
     _previousIndex = initialPage;
     _pageCallbackDisabled = false;
+    _controller = AnimationController(vsync: this, duration: widget.formatAnimationDuration);
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _animation = null;
+        _controller.reset();
+      }
+    });
+    _controller.addListener(() {
+      if (_animation != null) {
+        setState(() {
+          realHeight = _animation!.value;
+        });
+      }
+    });
   }
 
   @override
@@ -112,6 +135,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> {
       final shouldAnimate = _focusedDay != widget.focusedDay;
 
       _focusedDay = widget.focusedDay;
+      _format = widget.calendarFormat;
       _updatePage(shouldAnimate: shouldAnimate);
     }
 
@@ -119,7 +143,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> {
         widget.dowHeight != oldWidget.dowHeight ||
         widget.dowVisible != oldWidget.dowVisible ||
         widget.sixWeekMonthsEnforced != oldWidget.sixWeekMonthsEnforced) {
-      final rowCount = _getRowCount(widget.calendarFormat, _focusedDay);
+      final rowCount = _getRowCount(_format, _focusedDay);
       _pageHeight.value = _getPageHeight(rowCount);
     }
   }
@@ -136,26 +160,20 @@ class _TableCalendarBaseState extends State<TableCalendarBase> {
       widget.availableGestures == AvailableGestures.horizontalSwipe;
 
   bool get _canScrollVertically =>
-      widget.availableGestures == AvailableGestures.all ||
-      widget.availableGestures == AvailableGestures.verticalSwipe;
+      widget.availableGestures == AvailableGestures.all || widget.availableGestures == AvailableGestures.verticalSwipe;
 
   void _updatePage({bool shouldAnimate = false}) {
-    final currentIndex = _calculateFocusedPage(
-        widget.calendarFormat, widget.firstDay, _focusedDay);
+    final currentIndex = _calculateFocusedPage(_format, widget.firstDay, _focusedDay);
 
-    final endIndex = _calculateFocusedPage(
-        widget.calendarFormat, widget.firstDay, widget.lastDay);
+    final endIndex = _calculateFocusedPage(_format, widget.firstDay, widget.lastDay);
 
-    if (currentIndex != _previousIndex ||
-        currentIndex == 0 ||
-        currentIndex == endIndex) {
+    if (currentIndex != _previousIndex || currentIndex == 0 || currentIndex == endIndex) {
       _pageCallbackDisabled = true;
     }
 
     if (shouldAnimate && widget.pageAnimationEnabled) {
       if ((currentIndex - _previousIndex).abs() > 1) {
-        final jumpIndex =
-            currentIndex > _previousIndex ? currentIndex - 1 : currentIndex + 1;
+        final jumpIndex = currentIndex > _previousIndex ? currentIndex - 1 : currentIndex + 1;
 
         _pageController.jumpToPage(jumpIndex);
       }
@@ -170,45 +188,85 @@ class _TableCalendarBaseState extends State<TableCalendarBase> {
     }
 
     _previousIndex = currentIndex;
-    final rowCount = _getRowCount(widget.calendarFormat, _focusedDay);
+    final rowCount = _getRowCount(_format, _focusedDay);
     _pageHeight.value = _getPageHeight(rowCount);
-
+    if (_animation == null && isDrag == false) {
+      _startAnimation(_oldHeight, _pageHeight.value);
+      _oldHeight = _pageHeight.value;
+    } else {
+      isDrag = false;
+    }
     _pageCallbackDisabled = false;
+  }
+
+  void _startAnimation(double from, double to) {
+    _animation = Tween<double>(
+      begin: from,
+      end: to,
+    ).animate(_controller);
+
+    _controller.forward();
   }
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return SimpleGestureDetector(
-          onVerticalSwipe: _canScrollVertically ? widget.onVerticalSwipe : null,
-          swipeConfig: widget.simpleSwipeConfig,
-          child: ValueListenableBuilder<double>(
-            valueListenable: _pageHeight,
-            builder: (context, value, child) {
-              final height =
-                  constraints.hasBoundedHeight ? constraints.maxHeight : value;
-
-              return AnimatedSize(
-                duration: widget.formatAnimationDuration,
-                curve: widget.formatAnimationCurve,
-                alignment: Alignment.topCenter,
-                child: SizedBox(
-                  height: height,
-                  child: child,
-                ),
-              );
-            },
+        final double _monthHeight = _getPageHeight(_getRowCount(CalendarFormat.month, _focusedDay));
+        final double _twoWeek = _getPageHeight(_getRowCount(CalendarFormat.twoWeeks, _focusedDay));
+        final double _week = _getPageHeight(_getRowCount(CalendarFormat.week, _focusedDay));
+        return GestureDetector(
+          onVerticalDragDown: (detail) {
+            isDrag = true;
+          },
+          onVerticalDragUpdate: (detail) {
+            if (_format == CalendarFormat.week) {
+              _format = CalendarFormat.month;
+              _updatePage(shouldAnimate: false);
+            }
+            final double _temp = realHeight + detail.delta.dy;
+            _direction = detail.delta.direction > 0 ? SwipeDirection.down : SwipeDirection.up;
+            if (_temp >= _monthHeight || _temp <= _week) {
+              return;
+            }
+            setState(() {
+              realHeight = _temp;
+            });
+            _oldHeight = _temp;
+          },
+          onVerticalDragEnd: (detail) {
+            bool cross = false;
+            if (widget.calendarFormat == CalendarFormat.week && _oldHeight > _week * 1.5) {
+              cross = true;
+            } else if (widget.calendarFormat == CalendarFormat.month &&
+                _oldHeight < _twoWeek &&
+                _oldHeight > _week * 1.5) {
+              cross = true;
+            } else {
+              if (widget.calendarFormat == CalendarFormat.week && _direction == SwipeDirection.up) {
+                _format = CalendarFormat.week;
+                _updatePage();
+                _startAnimation(_oldHeight, _week);
+              } else if (widget.calendarFormat == CalendarFormat.month && _direction == SwipeDirection.down) {
+                _startAnimation(_oldHeight, _monthHeight);
+              }
+            }
+            if (widget.onVerticalSwipe != null) {
+              widget.onVerticalSwipe!(_direction, cross);
+            }
+            isDrag = false;
+          },
+          child: Container(
+            color: Colors.red,
+            height: realHeight,
             child: CalendarCore(
               constraints: constraints,
               pageController: _pageController,
-              scrollPhysics: _canScrollHorizontally
-                  ? PageScrollPhysics()
-                  : NeverScrollableScrollPhysics(),
+              scrollPhysics: _canScrollHorizontally ? PageScrollPhysics() : NeverScrollableScrollPhysics(),
               firstDay: widget.firstDay,
               lastDay: widget.lastDay,
               startingDayOfWeek: widget.startingDayOfWeek,
-              calendarFormat: widget.calendarFormat,
+              calendarFormat: _format,
               previousIndex: _previousIndex,
               focusedDay: _focusedDay,
               sixWeekMonthsEnforced: widget.sixWeekMonthsEnforced,
@@ -224,11 +282,11 @@ class _TableCalendarBaseState extends State<TableCalendarBase> {
                     _focusedDay = focusedMonth;
                   }
 
-                  if (widget.calendarFormat == CalendarFormat.month &&
+                  if (_format == CalendarFormat.month &&
                       !widget.sixWeekMonthsEnforced &&
                       !constraints.hasBoundedHeight) {
                     final rowCount = _getRowCount(
-                      widget.calendarFormat,
+                      _format,
                       focusedMonth,
                     );
                     _pageHeight.value = _getPageHeight(rowCount);
@@ -254,8 +312,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> {
     return dowHeight + rowCount * widget.rowHeight;
   }
 
-  int _calculateFocusedPage(
-      CalendarFormat format, DateTime startDay, DateTime focusedDay) {
+  int _calculateFocusedPage(CalendarFormat format, DateTime startDay, DateTime focusedDay) {
     switch (format) {
       case CalendarFormat.month:
         return _getMonthCount(startDay, focusedDay);
@@ -304,13 +361,11 @@ class _TableCalendarBaseState extends State<TableCalendarBase> {
   }
 
   int _getDaysBefore(DateTime firstDay) {
-    return (firstDay.weekday + 7 - getWeekdayNumber(widget.startingDayOfWeek)) %
-        7;
+    return (firstDay.weekday + 7 - getWeekdayNumber(widget.startingDayOfWeek)) % 7;
   }
 
   int _getDaysAfter(DateTime lastDay) {
-    int invertedStartingWeekday =
-        8 - getWeekdayNumber(widget.startingDayOfWeek);
+    int invertedStartingWeekday = 8 - getWeekdayNumber(widget.startingDayOfWeek);
 
     int daysAfter = 7 - ((lastDay.weekday + invertedStartingWeekday) % 7);
     if (daysAfter == 7) {
@@ -330,9 +385,22 @@ class _TableCalendarBaseState extends State<TableCalendarBase> {
   }
 
   DateTime _lastDayOfMonth(DateTime month) {
-    final date = month.month < 12
-        ? DateTime.utc(month.year, month.month + 1, 1)
-        : DateTime.utc(month.year + 1, 1, 1);
+    final date = month.month < 12 ? DateTime.utc(month.year, month.month + 1, 1) : DateTime.utc(month.year + 1, 1, 1);
     return date.subtract(const Duration(days: 1));
+  }
+}
+
+class _Clipper extends CustomClipper<Rect> {
+  final double height;
+
+  _Clipper(this.height);
+  @override
+  Rect getClip(Size size) {
+    return Rect.fromLTWH(0, 0, size.width, height);
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Rect> oldClipper) {
+    return true;
   }
 }

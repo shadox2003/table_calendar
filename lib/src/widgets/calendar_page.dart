@@ -28,6 +28,7 @@ class CalendarPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Table(
       border: tableBorder,
+      defaultVerticalAlignment: TableCellVerticalAlignment.bottom,
       children: [
         if (dowVisible) _buildDaysOfWeek(context),
         ..._buildCalendarDays(context),
