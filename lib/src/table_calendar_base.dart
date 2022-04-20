@@ -11,7 +11,6 @@ class TableCalendarBase extends StatefulWidget {
   final DateTime firstDay;
   final DateTime lastDay;
   final DateTime focusedDay;
-  final DateTime currentDay;
   final CalendarFormat calendarFormat;
   final DayBuilder? dowBuilder;
   final FocusedDayBuilder dayBuilder;
@@ -40,7 +39,6 @@ class TableCalendarBase extends StatefulWidget {
     required this.firstDay,
     required this.lastDay,
     required this.focusedDay,
-    required this.currentDay,
     this.calendarFormat = CalendarFormat.month,
     this.dowBuilder,
     required this.dayBuilder,

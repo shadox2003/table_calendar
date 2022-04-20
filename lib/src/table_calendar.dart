@@ -477,7 +477,6 @@ class _TableCalendarState<T> extends State<TableCalendar<T>> {
               _pageController = pageController;
               widget.onCalendarCreated?.call(pageController);
             },
-            currentDay: widget.currentDay ?? DateTime.now(),
             focusedDay: _focusedDay.value,
             calendarFormat: widget.calendarFormat,
             availableGestures: widget.availableGestures,
