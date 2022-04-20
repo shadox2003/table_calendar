@@ -3,7 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:table_calendar/src/widgets/custom_icon_button.dart';
+import 'package:sm_table_calendar/src/widgets/custom_icon_button.dart';
 
 Widget setupTestWidget(Widget child) {
   return Directionality(

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:table_calendar/src/shared/utils.dart';
+import 'package:sm_table_calendar/src/shared/utils.dart';
 
 void main() {
   group('isSameDay() tests:', () {

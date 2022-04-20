@@ -5,7 +5,7 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:sm_table_calendar/table_calendar.dart';
 
 import '../utils.dart';
 
@@ -42,8 +42,7 @@ class _TableComplexExampleState extends State<TableComplexExample> {
     super.dispose();
   }
 
-  bool get canClearSelection =>
-      _selectedDays.isNotEmpty || _rangeStart != null || _rangeEnd != null;
+  bool get canClearSelection => _selectedDays.isNotEmpty || _rangeStart != null || _rangeEnd != null;
 
   List<Event> _getEventsForDay(DateTime day) {
     return kEvents[day] ?? [];

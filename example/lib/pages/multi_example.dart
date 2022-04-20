@@ -4,7 +4,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:sm_table_calendar/table_calendar.dart';
 
 import '../utils.dart';
 

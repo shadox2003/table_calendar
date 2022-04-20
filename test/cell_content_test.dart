@@ -3,8 +3,8 @@
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:table_calendar/src/widgets/cell_content.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:sm_table_calendar/src/widgets/cell_content.dart';
+import 'package:sm_table_calendar/table_calendar.dart';
 
 Widget setupTestWidget(
   DateTime cellDay, {

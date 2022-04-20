@@ -114,6 +114,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  sm_table_calendar:
+    dependency: "direct main"
+    description:
+      path: ".."
+      relative: true
+    source: path
+    version: "3.0.5"
   source_span:
     dependency: transitive
     description:
@@ -142,13 +149,6 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.1.0"
-  table_calendar:
-    dependency: "direct main"
-    description:
-      path: ".."
-      relative: true
-    source: path
-    version: "3.0.5"
   term_glyph:
     dependency: transitive
     description:

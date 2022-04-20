@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:sm_table_calendar/table_calendar.dart';
 
 import 'common.dart';
 
@@ -50,10 +50,8 @@ void main() {
         final firstVisibleDayKey = dateToKey(firstVisibleDay);
         final lastVisibleDayKey = dateToKey(lastVisibleDay);
 
-        final startOOBKey =
-            dateToKey(firstVisibleDay.subtract(const Duration(days: 1)));
-        final endOOBKey =
-            dateToKey(lastVisibleDay.add(const Duration(days: 1)));
+        final startOOBKey = dateToKey(firstVisibleDay.subtract(const Duration(days: 1)));
+        final endOOBKey = dateToKey(lastVisibleDay.add(const Duration(days: 1)));
 
         expect(find.byKey(focusedDayKey), findsOneWidget);
         expect(find.byKey(firstVisibleDayKey), findsOneWidget);
@@ -96,10 +94,8 @@ void main() {
         final firstVisibleDayKey = dateToKey(firstVisibleDay);
         final lastVisibleDayKey = dateToKey(lastVisibleDay);
 
-        final startOOBKey =
-            dateToKey(firstVisibleDay.subtract(const Duration(days: 1)));
-        final endOOBKey =
-            dateToKey(lastVisibleDay.add(const Duration(days: 1)));
+        final startOOBKey = dateToKey(firstVisibleDay.subtract(const Duration(days: 1)));
+        final endOOBKey = dateToKey(lastVisibleDay.add(const Duration(days: 1)));
 
         expect(find.byKey(focusedDayKey), findsOneWidget);
         expect(find.byKey(firstVisibleDayKey), findsOneWidget);
@@ -142,10 +138,8 @@ void main() {
         final firstVisibleDayKey = dateToKey(firstVisibleDay);
         final lastVisibleDayKey = dateToKey(lastVisibleDay);
 
-        final startOOBKey =
-            dateToKey(firstVisibleDay.subtract(const Duration(days: 1)));
-        final endOOBKey =
-            dateToKey(lastVisibleDay.add(const Duration(days: 1)));
+        final startOOBKey = dateToKey(firstVisibleDay.subtract(const Duration(days: 1)));
+        final endOOBKey = dateToKey(lastVisibleDay.add(const Duration(days: 1)));
 
         expect(find.byKey(focusedDayKey), findsOneWidget);
         expect(find.byKey(firstVisibleDayKey), findsOneWidget);
@@ -188,10 +182,8 @@ void main() {
         final firstVisibleDayKey = dateToKey(firstVisibleDay);
         final lastVisibleDayKey = dateToKey(lastVisibleDay);
 
-        final startOOBKey =
-            dateToKey(firstVisibleDay.subtract(const Duration(days: 1)));
-        final endOOBKey =
-            dateToKey(lastVisibleDay.add(const Duration(days: 1)));
+        final startOOBKey = dateToKey(firstVisibleDay.subtract(const Duration(days: 1)));
+        final endOOBKey = dateToKey(lastVisibleDay.add(const Duration(days: 1)));
 
         expect(find.byKey(focusedDayKey), findsOneWidget);
         expect(find.byKey(firstVisibleDayKey), findsOneWidget);
@@ -234,10 +226,8 @@ void main() {
         final firstVisibleDayKey = dateToKey(firstVisibleDay);
         final lastVisibleDayKey = dateToKey(lastVisibleDay);
 
-        final startOOBKey =
-            dateToKey(firstVisibleDay.subtract(const Duration(days: 1)));
-        final endOOBKey =
-            dateToKey(lastVisibleDay.add(const Duration(days: 1)));
+        final startOOBKey = dateToKey(firstVisibleDay.subtract(const Duration(days: 1)));
+        final endOOBKey = dateToKey(lastVisibleDay.add(const Duration(days: 1)));
 
         expect(find.byKey(focusedDayKey), findsOneWidget);
         expect(find.byKey(firstVisibleDayKey), findsOneWidget);
@@ -280,10 +270,8 @@ void main() {
         final firstVisibleDayKey = dateToKey(firstVisibleDay);
         final lastVisibleDayKey = dateToKey(lastVisibleDay);
 
-        final startOOBKey =
-            dateToKey(firstVisibleDay.subtract(const Duration(days: 1)));
-        final endOOBKey =
-            dateToKey(lastVisibleDay.add(const Duration(days: 1)));
+        final startOOBKey = dateToKey(firstVisibleDay.subtract(const Duration(days: 1)));
+        final endOOBKey = dateToKey(lastVisibleDay.add(const Duration(days: 1)));
 
         expect(find.byKey(focusedDayKey), findsOneWidget);
         expect(find.byKey(firstVisibleDayKey), findsOneWidget);
@@ -322,7 +310,7 @@ void main() {
             onPageChanged: (focusedDay2) {
               focusedDay = focusedDay2;
             },
-            onVerticalSwipe: (direction) {
+            onVerticalSwipe: (direction, sender) {
               verticalSwipeDirection = direction;
             },
             rowHeight: 52,

@@ -28,7 +28,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
-  table_calendar: 
+  sm_table_calendar:
     path: ../
 
 dev_dependencies:

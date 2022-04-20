@@ -3,8 +3,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:table_calendar/src/widgets/format_button.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:sm_table_calendar/src/widgets/format_button.dart';
+import 'package:sm_table_calendar/table_calendar.dart';
 
 import 'common.dart';
 
@@ -118,14 +118,11 @@ void main() {
         final headerStyle = HeaderStyle(formatButtonShowsNext: true);
 
         final currentFormatIndex = 0;
-        final currentFormat =
-            calendarFormatMap.keys.elementAt(currentFormatIndex);
-        final currentFormatText =
-            calendarFormatMap.values.elementAt(currentFormatIndex);
+        final currentFormat = calendarFormatMap.keys.elementAt(currentFormatIndex);
+        final currentFormatText = calendarFormatMap.values.elementAt(currentFormatIndex);
 
         final nextFormatIndex = 1;
-        final nextFormatText =
-            calendarFormatMap.values.elementAt(nextFormatIndex);
+        final nextFormatText = calendarFormatMap.values.elementAt(nextFormatIndex);
 
         await tester.pumpWidget(
           setupTestWidget(
@@ -155,10 +152,8 @@ void main() {
         final headerStyle = HeaderStyle(formatButtonShowsNext: false);
 
         final currentFormatIndex = 0;
-        final currentFormat =
-            calendarFormatMap.keys.elementAt(currentFormatIndex);
-        final currentFormatText =
-            calendarFormatMap.values.elementAt(currentFormatIndex);
+        final currentFormat = calendarFormatMap.keys.elementAt(currentFormatIndex);
+        final currentFormatText = calendarFormatMap.values.elementAt(currentFormatIndex);
 
         await tester.pumpWidget(
           setupTestWidget(

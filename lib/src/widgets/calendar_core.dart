@@ -74,41 +74,6 @@ class CalendarCore extends StatelessWidget {
         return onPageChanged(index, baseDay);
       },
     );
-    // return Stack(
-    //   children: [
-    //     Positioned.fill(
-    //       child: PageView.builder(
-    //         controller: pageController,
-    //         physics: scrollPhysics,
-    //         itemCount: _getPageCount(calendarFormat, firstDay, lastDay),
-    //         itemBuilder: (context, index) {
-    //           return _createChild(index, calendarFormat, weekHeaderVisible: dowVisible);
-    //         },
-    //         onPageChanged: (index) {
-    //           DateTime baseDay;
-    //           final previousFocusedDay = focusedDay;
-    //           if (previousFocusedDay == null || previousIndex == null) {
-    //             baseDay = _getBaseDay(calendarFormat, index);
-    //           } else {
-    //             baseDay = _getFocusedDay(calendarFormat, previousFocusedDay, index);
-    //           }
-    //
-    //           return onPageChanged(index, baseDay);
-    //         },
-    //       ),
-    //     ),
-    //     // Positioned(
-    //     //   bottom: 0,
-    //     //   left: 0,
-    //     //   right: 0,
-    //     //   height: rowHeight,
-    //     //   child: Visibility(
-    //     //     visible: focusIndex != null,
-    //     //     child: _createChild(focusIndex ?? 0, CalendarFormat.week, weekHeaderVisible: false),
-    //     //   ),
-    //     // )
-    //   ],
-    // );
   }
 
   Widget _createChild(int index, CalendarFormat format, {bool weekHeaderVisible: true}) {
