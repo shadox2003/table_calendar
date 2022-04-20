@@ -387,18 +387,3 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
     return date.subtract(const Duration(days: 1));
   }
 }
-
-class _Clipper extends CustomClipper<Rect> {
-  final double height;
-
-  _Clipper(this.height);
-  @override
-  Rect getClip(Size size) {
-    return Rect.fromLTWH(0, 0, size.width, height);
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Rect> oldClipper) {
-    return true;
-  }
-}
