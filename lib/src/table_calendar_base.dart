@@ -91,6 +91,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   Animation? _animation;
   late double realHeight;
   bool isDrag = false;
+  bool dragCancel = false;
   CalendarFormat _format = CalendarFormat.month;
   late SwipeDirection _direction;
   GestureController? _gestureController;
@@ -217,9 +218,19 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
     final double _week = _getPageHeight(_getRowCount(CalendarFormat.week, _focusedDay));
     _direction = direction > 0 ? SwipeDirection.down : SwipeDirection.up;
     if (_format == CalendarFormat.week) {
-      if (_direction == SwipeDirection.up) return;
+      // 如果是周视图往上滑动不做任何操作
+      if (_direction == SwipeDirection.up) {
+        dragCancel = true;
+        return;
+      }
       _format = CalendarFormat.month;
       _updatePage();
+    } else {
+      // 如果是月视图往下滑动不做任何操作
+      if (_direction == SwipeDirection.down) {
+        dragCancel = true;
+        return;
+      }
     }
     final double _temp = realHeight + offsetY;
     _direction = direction > 0 ? SwipeDirection.down : SwipeDirection.up;
@@ -242,6 +253,10 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   }
 
   void _onDragEnd() {
+    if (dragCancel) {
+      dragCancel = false;
+      return;
+    }
     bool cross = false;
     final double _monthHeight = _getPageHeight(_getRowCount(CalendarFormat.month, _focusedDay));
     final double _twoWeek = _getPageHeight(2);

@@ -75,7 +75,8 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
                 onPointerUp: (sender) {
                   _gestureController?.onVerticalDragEnd!();
                 },
-                child: ListView.builder(itemBuilder: (conte, index) => Text(index.toString()))),
+                child: ListView.builder(
+                    physics: NeverScrollableScrollPhysics(), itemBuilder: (conte, index) => Text(index.toString()))),
           )
         ],
       ),
