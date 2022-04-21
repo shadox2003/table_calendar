@@ -62,7 +62,6 @@ class TableCalendarBase extends StatefulWidget {
     ),
     this.availableCalendarFormats = const {
       CalendarFormat.month: 'Month',
-      CalendarFormat.twoWeeks: '2 weeks',
       CalendarFormat.week: 'Week',
     },
     this.onVerticalSwipe,
@@ -275,7 +274,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
     return LayoutBuilder(
       builder: (context, constraints) {
         final double _monthHeight = _getPageHeight(_getRowCount(CalendarFormat.month, _focusedDay));
-        final double _twoWeek = _getPageHeight(_getRowCount(CalendarFormat.twoWeeks, _focusedDay));
+        final double _twoWeek = _getPageHeight(2);
         final double _week = _getPageHeight(_getRowCount(CalendarFormat.week, _focusedDay));
         double overflowBoxHeight = _format == CalendarFormat.week ? _week : _monthHeight;
         overflowBoxHeight = isDrag ? _monthHeight : overflowBoxHeight;
@@ -395,8 +394,6 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
     switch (format) {
       case CalendarFormat.month:
         return _getMonthCount(startDay, focusedDay);
-      case CalendarFormat.twoWeeks:
-        return _getTwoWeekCount(startDay, focusedDay);
       case CalendarFormat.week:
         return _getWeekCount(startDay, focusedDay);
       default:
@@ -420,9 +417,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   }
 
   int _getRowCount(CalendarFormat format, DateTime focusedDay) {
-    if (format == CalendarFormat.twoWeeks) {
-      return 2;
-    } else if (format == CalendarFormat.week) {
+    if (format == CalendarFormat.week) {
       return 1;
     } else if (widget.sixWeekMonthsEnforced) {
       return 6;
