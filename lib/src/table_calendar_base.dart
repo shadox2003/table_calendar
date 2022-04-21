@@ -313,9 +313,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   }
 
   double _getOffsetY() {
-    final currentIndex = _calculateFocusedPage(_format, widget.firstDay, _focusedDay);
-    final baseDay = _getBaseDay(CalendarFormat.month, currentIndex);
-    final visibleRange = _daysInMonth(baseDay);
+    final visibleRange = _daysInMonth(_focusedDay);
     final visibleDays = _daysInRange(visibleRange.start, visibleRange.end);
     final numbers = visibleDays.indexOf(_focusedDay);
 
@@ -455,10 +453,6 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
 
   int _getWeekCount(DateTime first, DateTime last) {
     return last.difference(_firstDayOfWeek(first)).inDays ~/ 7;
-  }
-
-  int _getTwoWeekCount(DateTime first, DateTime last) {
-    return last.difference(_firstDayOfWeek(first)).inDays ~/ 14;
   }
 
   int _getRowCount(CalendarFormat format, DateTime focusedDay) {
