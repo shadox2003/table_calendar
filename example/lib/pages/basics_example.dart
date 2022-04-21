@@ -26,6 +26,7 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
         firstDay: kFirstDay,
         lastDay: kLastDay,
         focusedDay: _focusedDay,
+        selectedDay: _selectedDay,
         calendarFormat: _calendarFormat,
         selectedDayPredicate: (day) {
           // Use `selectedDayPredicate` to determine which day is currently selected.
