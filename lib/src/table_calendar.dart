@@ -500,7 +500,9 @@ class _TableCalendarState<T> extends State<TableCalendar<T>> {
             sixWeekMonthsEnforced: widget.sixWeekMonthsEnforced,
             onVerticalSwipe: _swipeCalendarFormat,
             onPageChanged: (focusedDay) {
-              _focusedDay.value = focusedDay;
+              setState(() {
+                _focusedDay.value = focusedDay;
+              });
               widget.onPageChanged?.call(focusedDay);
             },
             dowBuilder: (BuildContext context, DateTime day) {
@@ -524,13 +526,10 @@ class _TableCalendarState<T> extends State<TableCalendar<T>> {
 
               return dowCell;
             },
+            onTapDay: _onDayTapped,
+            onLongTapDay: _onDayLongPressed,
             dayBuilder: (context, day, focusedMonth) {
-              return GestureDetector(
-                behavior: widget.dayHitTestBehavior,
-                onTap: () => _onDayTapped(day),
-                onLongPress: () => _onDayLongPressed(day),
-                child: _buildCell(day, focusedMonth),
-              );
+              return _buildCell(day, focusedMonth);
             },
           ),
         ),

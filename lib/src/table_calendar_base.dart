@@ -34,6 +34,8 @@ class TableCalendarBase extends StatefulWidget {
   final void Function(DateTime focusedDay)? onPageChanged;
   final Function(GestureController gestureController)? onGestureController;
   final void Function(PageController pageController)? onCalendarCreated;
+  final Function(DateTime day)? onTapDay;
+  final Function(DateTime day)? onLongTapDay;
 
   TableCalendarBase({
     Key? key,
@@ -42,6 +44,8 @@ class TableCalendarBase extends StatefulWidget {
     required this.focusedDay,
     this.calendarFormat = CalendarFormat.month,
     this.dowBuilder,
+    this.onTapDay,
+    this.onLongTapDay,
     required this.dayBuilder,
     this.dowHeight,
     required this.rowHeight,
@@ -93,11 +97,13 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   CalendarFormat _format = CalendarFormat.month;
   late SwipeDirection _direction;
   GestureController? _gestureController;
+  late DateTime _selectedDay;
 
   @override
   void initState() {
     super.initState();
     _focusedDay = widget.focusedDay;
+    _selectedDay = widget.focusedDay;
     final rowCount = _getRowCount(_format, _focusedDay);
     _pageHeight = _getPageHeight(rowCount);
     _oldHeight = _pageHeight;
@@ -307,7 +313,9 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   }
 
   double _getOffsetY() {
-    final visibleRange = _daysInMonth(_focusedDay);
+    final currentIndex = _calculateFocusedPage(_format, widget.firstDay, _focusedDay);
+    final baseDay = _getBaseDay(CalendarFormat.month, currentIndex);
+    final visibleRange = _daysInMonth(baseDay);
     final visibleDays = _daysInRange(visibleRange.start, visibleRange.end);
     final numbers = visibleDays.indexOf(_focusedDay);
 
@@ -384,6 +392,13 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
                         _focusedDay = focusedMonth;
                       }
 
+                      DateTime temp = focusedMonth;
+                      if (temp.year == _selectedDay.year &&
+                          temp.month == _selectedDay.month &&
+                          _format == CalendarFormat.month) {
+                        temp = _selectedDay;
+                      }
+
                       if (_format == CalendarFormat.month &&
                           !widget.sixWeekMonthsEnforced &&
                           !constraints.hasBoundedHeight) {
@@ -402,13 +417,26 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
                       }
 
                       _previousIndex = index;
-                      widget.onPageChanged?.call(focusedMonth);
+                      widget.onPageChanged?.call(temp);
                     }
 
                     _pageCallbackDisabled = false;
                   },
                   dowBuilder: widget.dowBuilder,
-                  dayBuilder: widget.dayBuilder,
+                  dayBuilder: (context, day, focusedMonth) {
+                    return GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        _selectedDay = day;
+                        if (widget.onTapDay != null) widget.onTapDay!(day);
+                      },
+                      onLongPress: () {
+                        _selectedDay = day;
+                        if (widget.onLongTapDay != null) widget.onLongTapDay!(day);
+                      },
+                      child: widget.dayBuilder(context, day, focusedMonth),
+                    );
+                  },
                 ),
               ),
             ),

@@ -63,20 +63,20 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
               _focusedDay = focusedDay;
             },
           ),
-          Expanded(
-            child: Listener(
-                onPointerDown: (sender) {
-                  _gestureController?.onVerticalDragDown!();
-                },
-                onPointerMove: (sender) {
-                  _gestureController?.onVerticalDragUpdate!(sender.delta.dy, sender.delta.direction);
-                },
-                onPointerUp: (sender) {
-                  _gestureController?.onVerticalDragEnd!();
-                },
-                child: ListView.builder(
-                    physics: NeverScrollableScrollPhysics(), itemBuilder: (conte, index) => Text(index.toString()))),
-          )
+          // Expanded(
+          //   child: Listener(
+          //       onPointerDown: (sender) {
+          //         _gestureController?.onVerticalDragDown!();
+          //       },
+          //       onPointerMove: (sender) {
+          //         _gestureController?.onVerticalDragUpdate!(sender.delta.dy, sender.delta.direction);
+          //       },
+          //       onPointerUp: (sender) {
+          //         _gestureController?.onVerticalDragEnd!();
+          //       },
+          //       child: ListView.builder(
+          //           physics: NeverScrollableScrollPhysics(), itemBuilder: (conte, index) => Text(index.toString()))),
+          // )
         ],
       ),
     );
