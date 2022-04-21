@@ -225,15 +225,8 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
       }
       _format = CalendarFormat.month;
       _updatePage();
-    } else {
-      // 如果是月视图往下滑动不做任何操作
-      if (_direction == SwipeDirection.down) {
-        dragCancel = true;
-        return;
-      }
     }
     final double _temp = realHeight + offsetY;
-    _direction = direction > 0 ? SwipeDirection.down : SwipeDirection.up;
     if (_temp >= _monthHeight || _temp <= _week) {
       return;
     }
@@ -270,8 +263,10 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
         _format = CalendarFormat.week;
         _updatePage();
         _startAnimation(_oldHeight, _week);
+        return;
       } else if (widget.calendarFormat == CalendarFormat.month && _direction == SwipeDirection.down) {
         _startAnimation(_oldHeight, _monthHeight);
+        return;
       }
     }
     if (widget.onVerticalSwipe != null) {
