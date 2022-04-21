@@ -149,6 +149,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   @override
   void dispose() {
     _pageController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -278,13 +279,10 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
         final double _week = _getPageHeight(_getRowCount(CalendarFormat.week, _focusedDay));
         double overflowBoxHeight = _format == CalendarFormat.week ? _week : _monthHeight;
         overflowBoxHeight = isDrag ? _monthHeight : overflowBoxHeight;
-        print("$overflowBoxHeight===>");
 
         return GestureDetector(
           onVerticalDragDown: (detail) {
-            setState(() {
-              isDrag = true;
-            });
+            isDrag = true;
           },
           onVerticalDragUpdate: (detail) {
             if (_format == CalendarFormat.week) {
