@@ -215,8 +215,9 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   void _onDragUpdate(double offsetY, double direction) {
     final double _monthHeight = _getPageHeight(_getRowCount(CalendarFormat.month, _focusedDay));
     final double _week = _getPageHeight(_getRowCount(CalendarFormat.week, _focusedDay));
-
+    _direction = direction > 0 ? SwipeDirection.down : SwipeDirection.up;
     if (_format == CalendarFormat.week) {
+      if (_direction == SwipeDirection.up) return;
       _format = CalendarFormat.month;
       _updatePage();
     }

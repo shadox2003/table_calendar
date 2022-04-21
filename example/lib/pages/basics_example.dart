@@ -65,18 +65,17 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
             },
           ),
           Expanded(
-            child: GestureDetector(
-                onVerticalDragDown: (sender) {
+            child: Listener(
+                onPointerDown: (sender) {
                   _gestureController?.onVerticalDragDown!();
                 },
-                onVerticalDragUpdate: (sender) {
+                onPointerMove: (sender) {
                   _gestureController?.onVerticalDragUpdate!(sender.delta.dy, sender.delta.direction);
                 },
-                onVerticalDragEnd: (sender) {
+                onPointerUp: (sender) {
                   _gestureController?.onVerticalDragEnd!();
                 },
-                child: ListView.builder(
-                    physics: NeverScrollableScrollPhysics(), itemBuilder: (conte, index) => Text(index.toString()))),
+                child: ListView.builder(itemBuilder: (conte, index) => Text(index.toString()))),
           )
         ],
       ),
