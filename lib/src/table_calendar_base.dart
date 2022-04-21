@@ -33,6 +33,7 @@ class TableCalendarBase extends StatefulWidget {
   final Map<CalendarFormat, String> availableCalendarFormats;
   final Function(SwipeDirection direction, bool cross)? onVerticalSwipe;
   final void Function(DateTime focusedDay)? onPageChanged;
+  final Function(GestureController gestureController)? onGestureController;
   final void Function(PageController pageController)? onCalendarCreated;
 
   TableCalendarBase({
@@ -69,6 +70,7 @@ class TableCalendarBase extends StatefulWidget {
     this.onVerticalSwipe,
     this.onPageChanged,
     this.onCalendarCreated,
+    this.onGestureController,
   })  : assert(!dowVisible || (dowHeight != null && dowBuilder != null)),
         assert(isSameDay(focusedDay, firstDay) || focusedDay.isAfter(firstDay)),
         assert(isSameDay(focusedDay, lastDay) || focusedDay.isBefore(lastDay)),
@@ -91,6 +93,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   bool isDrag = false;
   CalendarFormat _format = CalendarFormat.month;
   late SwipeDirection _direction;
+  GestureController? _gestureController;
 
   @override
   void initState() {
@@ -122,6 +125,13 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
         });
       }
     });
+
+    _gestureController = GestureController(
+      onVerticalDragDown: _onDragDown,
+      onVerticalDragUpdate: _onDragUpdate,
+      onVerticalDragEnd: _onDragEnd,
+    );
+    if (widget.onGestureController != null) widget.onGestureController!(_gestureController!);
   }
 
   @override
@@ -198,6 +208,29 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
     _pageCallbackDisabled = false;
   }
 
+  void _onDragDown() {
+    isDrag = true;
+  }
+
+  void _onDragUpdate(double offsetY, double direction) {
+    final double _monthHeight = _getPageHeight(_getRowCount(CalendarFormat.month, _focusedDay));
+    final double _week = _getPageHeight(_getRowCount(CalendarFormat.week, _focusedDay));
+
+    if (_format == CalendarFormat.week) {
+      _format = CalendarFormat.month;
+      _updatePage();
+    }
+    final double _temp = realHeight + offsetY;
+    _direction = direction > 0 ? SwipeDirection.down : SwipeDirection.up;
+    if (_temp >= _monthHeight || _temp <= _week) {
+      return;
+    }
+    setState(() {
+      realHeight = _temp;
+    });
+    _oldHeight = _temp;
+  }
+
   void _startAnimation(double from, double to) {
     _animation = Tween<double>(
       begin: from,
@@ -205,6 +238,30 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
     ).animate(_controller);
 
     _controller.forward();
+  }
+
+  void _onDragEnd() {
+    bool cross = false;
+    final double _monthHeight = _getPageHeight(_getRowCount(CalendarFormat.month, _focusedDay));
+    final double _twoWeek = _getPageHeight(2);
+    final double _week = _getPageHeight(_getRowCount(CalendarFormat.week, _focusedDay));
+    if (widget.calendarFormat == CalendarFormat.week && _oldHeight > _week * 1.5) {
+      cross = true;
+    } else if (widget.calendarFormat == CalendarFormat.month && _oldHeight < _twoWeek && _oldHeight > _week * 1.5) {
+      cross = true;
+    } else {
+      if (widget.calendarFormat == CalendarFormat.week && _direction == SwipeDirection.up) {
+        _format = CalendarFormat.week;
+        _updatePage();
+        _startAnimation(_oldHeight, _week);
+      } else if (widget.calendarFormat == CalendarFormat.month && _direction == SwipeDirection.down) {
+        _startAnimation(_oldHeight, _monthHeight);
+      }
+    }
+    if (widget.onVerticalSwipe != null) {
+      widget.onVerticalSwipe!(_direction, cross);
+    }
+    isDrag = false;
   }
 
   DateTime _getBaseDay(CalendarFormat format, int pageIndex) {
@@ -279,51 +336,19 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
     return LayoutBuilder(
       builder: (context, constraints) {
         final double _monthHeight = _getPageHeight(_getRowCount(CalendarFormat.month, _focusedDay));
-        final double _twoWeek = _getPageHeight(2);
         final double _week = _getPageHeight(_getRowCount(CalendarFormat.week, _focusedDay));
         double overflowBoxHeight = _format == CalendarFormat.week ? _week : _monthHeight;
         overflowBoxHeight = isDrag ? _monthHeight : overflowBoxHeight;
 
         return GestureDetector(
           onVerticalDragDown: (detail) {
-            isDrag = true;
+            _onDragDown();
           },
           onVerticalDragUpdate: (detail) {
-            if (_format == CalendarFormat.week) {
-              _format = CalendarFormat.month;
-              _updatePage();
-            }
-            final double _temp = realHeight + detail.delta.dy;
-            _direction = detail.delta.direction > 0 ? SwipeDirection.down : SwipeDirection.up;
-            if (_temp >= _monthHeight || _temp <= _week) {
-              return;
-            }
-            setState(() {
-              realHeight = _temp;
-            });
-            _oldHeight = _temp;
+            _onDragUpdate(detail.delta.dy, detail.delta.direction);
           },
           onVerticalDragEnd: (detail) {
-            bool cross = false;
-            if (widget.calendarFormat == CalendarFormat.week && _oldHeight > _week * 1.5) {
-              cross = true;
-            } else if (widget.calendarFormat == CalendarFormat.month &&
-                _oldHeight < _twoWeek &&
-                _oldHeight > _week * 1.5) {
-              cross = true;
-            } else {
-              if (widget.calendarFormat == CalendarFormat.week && _direction == SwipeDirection.up) {
-                _format = CalendarFormat.week;
-                _updatePage();
-                _startAnimation(_oldHeight, _week);
-              } else if (widget.calendarFormat == CalendarFormat.month && _direction == SwipeDirection.down) {
-                _startAnimation(_oldHeight, _monthHeight);
-              }
-            }
-            if (widget.onVerticalSwipe != null) {
-              widget.onVerticalSwipe!(_direction, cross);
-            }
-            isDrag = false;
+            _onDragEnd();
           },
           child: ClipRect(
             clipper: _Clipper(realHeight),
@@ -487,4 +512,12 @@ class _Clipper extends CustomClipper<Rect> {
   bool shouldReclip(covariant _Clipper oldClipper) {
     return height != oldClipper.height;
   }
+}
+
+class GestureController {
+  final Function()? onVerticalDragDown;
+  final Function(double offsetY, double direction)? onVerticalDragUpdate;
+  final Function()? onVerticalDragEnd;
+
+  GestureController({this.onVerticalDragDown, this.onVerticalDragUpdate, this.onVerticalDragEnd});
 }
