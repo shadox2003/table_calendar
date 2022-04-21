@@ -317,13 +317,13 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
     final baseDay = _getBaseDay(CalendarFormat.month, currentIndex);
     final visibleRange = _daysInMonth(baseDay);
     final visibleDays = _daysInRange(visibleRange.start, visibleRange.end);
-    final numbers = visibleDays.indexOf(_focusedDay);
+    int numbers = visibleDays.indexOf(_focusedDay);
 
     double offsetY = 0;
 
     final List<double> row = [-1, -0.5, 0, 0.5, 1];
     final List<double> row2 = [-1, -0.6, -0.2, 0.2, 0.6, 1];
-
+    if (numbers % 7 == 0) numbers += 1;
     int line = numbers ~/ 7;
     if (numbers % 7 > 0) {
       line++;
