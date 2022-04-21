@@ -40,7 +40,6 @@ class TableCalendar<T> extends StatefulWidget {
   /// DateTime that determines which days are currently visible and focused.
   final DateTime focusedDay;
   // 选中的日期
-  final DateTime? selectedDay;
 
   /// The first active day of `TableCalendar`.
   /// Blocks swiping to days before it.
@@ -208,7 +207,6 @@ class TableCalendar<T> extends StatefulWidget {
     required DateTime lastDay,
     DateTime? currentDay,
     this.locale,
-    this.selectedDay,
     this.rangeStartDay,
     this.rangeEndDay,
     this.weekendDays = const [DateTime.saturday, DateTime.sunday],
@@ -481,7 +479,6 @@ class _TableCalendarState<T> extends State<TableCalendar<T>> {
             },
             focusedDay: _focusedDay.value,
             calendarFormat: widget.calendarFormat,
-            selectedDay: widget.selectedDay,
             availableGestures: widget.availableGestures,
             firstDay: widget.firstDay,
             lastDay: widget.lastDay,

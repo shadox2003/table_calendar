@@ -29,7 +29,6 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
             firstDay: kFirstDay,
             lastDay: kLastDay,
             focusedDay: _focusedDay,
-            selectedDay: _selectedDay,
             calendarFormat: _calendarFormat,
             onGestureController: (sender) {
               _gestureController = sender;

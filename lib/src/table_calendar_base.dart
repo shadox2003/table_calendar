@@ -11,7 +11,6 @@ class TableCalendarBase extends StatefulWidget {
   final DateTime firstDay;
   final DateTime lastDay;
   final DateTime focusedDay;
-  final DateTime? selectedDay;
   final CalendarFormat calendarFormat;
   final DayBuilder? dowBuilder;
   final FocusedDayBuilder dayBuilder;
@@ -48,7 +47,6 @@ class TableCalendarBase extends StatefulWidget {
     required this.rowHeight,
     this.sixWeekMonthsEnforced = false,
     this.dowVisible = true,
-    this.selectedDay,
     this.dowDecoration,
     this.rowDecoration,
     this.tableBorder,
@@ -144,10 +142,6 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
         widget.startingDayOfWeek != oldWidget.startingDayOfWeek) {
       bool shouldAnimate = _focusedDay != widget.focusedDay;
       _focusedDay = widget.focusedDay;
-      if (widget.selectedDay?.year == _focusedDay.year && widget.selectedDay?.month == _focusedDay.month) {
-        _focusedDay = widget.selectedDay!;
-        shouldAnimate = false;
-      }
       _format = widget.calendarFormat;
       _updatePage(shouldAnimate: shouldAnimate);
     }
@@ -388,10 +382,6 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
                     if (!_pageCallbackDisabled) {
                       if (!isSameDay(_focusedDay, focusedMonth)) {
                         _focusedDay = focusedMonth;
-                        if (widget.selectedDay?.year == _focusedDay.year &&
-                            widget.selectedDay?.month == _focusedDay.month) {
-                          _focusedDay = widget.selectedDay!;
-                        }
                       }
 
                       if (_format == CalendarFormat.month &&
