@@ -16,7 +16,7 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
   GestureController? _gestureController;
-
+  double y = 0;
   @override
   void initState() {
     super.initState();
@@ -69,16 +69,30 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
             },
           ),
           Expanded(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onVerticalDragEnd: (sender) {
-                _gestureController?.onVerticalDragEnd!();
+            child: Listener(
+              behavior: HitTestBehavior.translucent,
+              //手指按下时会触发此回调
+              onPointerDown: (PointerDownEvent e) {
+                y = e.position.dy;
+                // print("用户手指按下：${e.position.dy}");
               },
-              onVerticalDragDown: (sender) {
-                _gestureController?.onVerticalDragDown!();
-              },
-              onVerticalDragUpdate: (sender) {
-                _gestureController?.onVerticalDragUpdate!(sender.delta.dy, sender.delta.direction);
+              //手指滑动时会触发此回调
+              onPointerMove: (PointerMoveEvent e) {
+                // 手势滑动 触发 日历的周月视图 切换
+                if (_calendarFormat == CalendarFormat.month) {
+                  // 展开状态
+                  if (e.position.dy - y < 0) {
+                    setState(() {
+                      _calendarFormat = CalendarFormat.week;
+                    });
+                  }
+                } else {
+                  if (e.position.dy - y > 0) {
+                    setState(() {
+                      _calendarFormat = CalendarFormat.month;
+                    });
+                  }
+                }
               },
               child: IgnorePointer(
                 ignoring: true,

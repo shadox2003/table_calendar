@@ -368,17 +368,19 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
         final double _monthHeight = _getPageHeight(_getRowCount(CalendarFormat.month, _focusedDay));
         final double _week = _getPageHeight(_getRowCount(CalendarFormat.week, _focusedDay));
         double overflowBoxHeight = _format == CalendarFormat.week ? _week : _monthHeight;
-        print(
-            "offset: $_offsetY, isDrag: $isDrag $overflowBoxHeight, $_format, focuseDay=$_focusedDay, _selectedDay = $_selectedDay");
+        //print("offset: $_offsetY, isDrag: $isDrag $overflowBoxHeight, $_format, focuseDay=$_focusedDay, _selectedDay = $_selectedDay");
         return GestureDetector(
-          onVerticalDragDown: (detail) {
-            _onDragDown();
-          },
           onVerticalDragUpdate: (detail) {
             _onDragUpdate(detail.delta.dy, detail.delta.direction);
           },
           onVerticalDragEnd: (detail) {
             _onDragEnd();
+          },
+          onVerticalDragStart: (detail) {
+            _onDragDown();
+          },
+          onVerticalDragCancel: () {
+            isDrag = false;
           },
           child: ValueListenableBuilder<double>(
             valueListenable: realHeight,
