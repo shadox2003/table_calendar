@@ -97,6 +97,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   CalendarFormat _format = CalendarFormat.month;
   late SwipeDirection _direction;
   GestureController? _gestureController;
+  // 用户选中的日期
   late DateTime _selectedDay;
   double _offsetY = -1;
 
@@ -122,6 +123,11 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
       if (status == AnimationStatus.completed) {
         _animation = null;
         _controller.reset();
+        if (_isSameMonth(_focusedDay, _selectedDay) && _format == CalendarFormat.month) {
+          _focusedDay = _selectedDay;
+          widget.onPageChanged?.call(_focusedDay);
+        }
+        // print("offset: $_offsetY, isDrag: $isDrag, $_format, focuseDay=$_focusedDay, _selectedDay = $_selectedDay");
       }
     });
     _controller.addListener(() {
@@ -322,11 +328,15 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   }
 
   double _getOffsetY() {
-    final currentIndex = _calculateFocusedPage(_format, widget.firstDay, _focusedDay);
+    DateTime _temp = _focusedDay;
+    if (_format == CalendarFormat.month) {
+      if (_isSameMonth(_focusedDay, _selectedDay)) _temp = _selectedDay;
+    }
+    final currentIndex = _calculateFocusedPage(_format, widget.firstDay, _temp);
     final baseDay = _getBaseDay(CalendarFormat.month, currentIndex);
     final visibleRange = _daysInMonth(baseDay);
     final visibleDays = _daysInRange(visibleRange.start, visibleRange.end);
-    int numbers = visibleDays.indexOf(_focusedDay);
+    int numbers = visibleDays.indexOf(_temp);
 
     double offsetY = 0;
 
@@ -358,7 +368,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
         final double _monthHeight = _getPageHeight(_getRowCount(CalendarFormat.month, _focusedDay));
         final double _week = _getPageHeight(_getRowCount(CalendarFormat.week, _focusedDay));
         double overflowBoxHeight = _format == CalendarFormat.week ? _week : _monthHeight;
-        overflowBoxHeight = isDrag ? _monthHeight : overflowBoxHeight;
+        // print("offset: $_offsetY, isDrag: $isDrag $overflowBoxHeight, $_format, focuseDay=$_focusedDay, _selectedDay = $_selectedDay");
         return GestureDetector(
           onVerticalDragDown: (detail) {
             _onDragDown();
@@ -396,15 +406,13 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
                   tableBorder: widget.tableBorder,
                   onPageChanged: (index, focusedMonth) {
                     if (!_pageCallbackDisabled) {
+                      DateTime temp = focusedMonth;
                       if (!isSameDay(_focusedDay, focusedMonth)) {
                         _focusedDay = focusedMonth;
-                      }
-
-                      DateTime temp = focusedMonth;
-                      if (temp.year == _selectedDay.year &&
-                          temp.month == _selectedDay.month &&
-                          _format == CalendarFormat.month) {
-                        temp = _selectedDay;
+                        if (_isSameMonth(_focusedDay, _selectedDay) && _format == CalendarFormat.month) {
+                          _focusedDay = _selectedDay;
+                          temp = _selectedDay;
+                        }
                       }
 
                       if (_format == CalendarFormat.month &&
