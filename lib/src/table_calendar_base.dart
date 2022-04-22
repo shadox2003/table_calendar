@@ -239,6 +239,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
         return;
       }
       _format = CalendarFormat.month;
+      _offsetY = _getOffsetY();
       _updatePage();
     }
     final double _temp = realHeight + offsetY;
