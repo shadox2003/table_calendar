@@ -170,6 +170,10 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
     super.dispose();
   }
 
+  bool _isSameMonth(DateTime d1, DateTime d2) {
+    return d1.month == d2.month && d1.year == d2.year;
+  }
+
   bool get _canScrollHorizontally =>
       widget.availableGestures == AvailableGestures.all ||
       widget.availableGestures == AvailableGestures.horizontalSwipe;
