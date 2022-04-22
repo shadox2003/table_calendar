@@ -91,7 +91,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   late AnimationController _controller;
   late double _oldHeight;
   Animation? _animation;
-  late double realHeight;
+  late final ValueNotifier<double> realHeight;
   bool isDrag = false;
   bool dragCancel = false;
   CalendarFormat _format = CalendarFormat.month;
@@ -109,7 +109,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
     final rowCount = _getRowCount(_format, _focusedDay);
     _pageHeight = _getPageHeight(rowCount);
     _oldHeight = _pageHeight;
-    realHeight = _pageHeight;
+    realHeight = ValueNotifier(_pageHeight);
 
     final initialPage = _calculateFocusedPage(_format, widget.firstDay, _focusedDay);
 
@@ -132,9 +132,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
     });
     _controller.addListener(() {
       if (_animation != null) {
-        setState(() {
-          realHeight = _animation!.value;
-        });
+        realHeight.value = _animation!.value;
       }
     });
 
@@ -222,10 +220,8 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   }
 
   void _onDragDown() {
-    setState(() {
-      isDrag = true;
-      _offsetY = _getOffsetY();
-    });
+    isDrag = true;
+    _offsetY = _getOffsetY();
   }
 
   void _onDragUpdate(double offsetY, double direction) {
@@ -238,17 +234,17 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
         dragCancel = true;
         return;
       }
-      _format = CalendarFormat.month;
-      _offsetY = _getOffsetY();
+      setState(() {
+        _format = CalendarFormat.month;
+        _offsetY = _getOffsetY();
+      });
       _updatePage();
     }
-    final double _temp = realHeight + offsetY;
+    final double _temp = realHeight.value + offsetY;
     if (_temp >= _monthHeight || _temp <= _week) {
       return;
     }
-    setState(() {
-      realHeight = _temp;
-    });
+    realHeight.value = _temp;
     _oldHeight = _temp;
   }
 
@@ -369,7 +365,8 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
         final double _monthHeight = _getPageHeight(_getRowCount(CalendarFormat.month, _focusedDay));
         final double _week = _getPageHeight(_getRowCount(CalendarFormat.week, _focusedDay));
         double overflowBoxHeight = _format == CalendarFormat.week ? _week : _monthHeight;
-        // print("offset: $_offsetY, isDrag: $isDrag $overflowBoxHeight, $_format, focuseDay=$_focusedDay, _selectedDay = $_selectedDay");
+        print(
+            "offset: $_offsetY, isDrag: $isDrag $overflowBoxHeight, $_format, focuseDay=$_focusedDay, _selectedDay = $_selectedDay");
         return GestureDetector(
           onVerticalDragDown: (detail) {
             _onDragDown();
@@ -380,81 +377,86 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
           onVerticalDragEnd: (detail) {
             _onDragEnd();
           },
-          child: ClipRect(
-            clipper: _Clipper(realHeight),
-            child: Container(
-              height: realHeight,
-              child: OverflowBox(
-                minHeight: _week,
-                maxHeight: overflowBoxHeight,
-                alignment: Alignment(0, _offsetY),
-                child: CalendarCore(
-                  constraints: constraints,
-                  pageController: _pageController,
-                  scrollPhysics: _canScrollHorizontally ? PageScrollPhysics() : NeverScrollableScrollPhysics(),
-                  firstDay: widget.firstDay,
-                  lastDay: widget.lastDay,
-                  startingDayOfWeek: widget.startingDayOfWeek,
-                  calendarFormat: _format,
-                  previousIndex: _previousIndex,
-                  focusedDay: _focusedDay,
-                  sixWeekMonthsEnforced: widget.sixWeekMonthsEnforced,
-                  dowVisible: widget.dowVisible,
-                  dowHeight: widget.dowHeight,
-                  rowHeight: widget.rowHeight,
-                  dowDecoration: widget.dowDecoration,
-                  rowDecoration: widget.rowDecoration,
-                  tableBorder: widget.tableBorder,
-                  onPageChanged: (index, focusedMonth) {
-                    if (!_pageCallbackDisabled) {
-                      DateTime temp = focusedMonth;
-                      if (!isSameDay(_focusedDay, focusedMonth)) {
-                        _focusedDay = focusedMonth;
-                        if (_isSameMonth(_focusedDay, _selectedDay) && _format == CalendarFormat.month) {
-                          _focusedDay = _selectedDay;
-                          temp = _selectedDay;
-                        }
+          child: ValueListenableBuilder<double>(
+            valueListenable: realHeight,
+            builder: (context, value, child) {
+              return ClipRect(
+                clipper: _Clipper(value),
+                child: Container(
+                  height: value,
+                  child: child,
+                ),
+              );
+            },
+            child: OverflowBox(
+              minHeight: _week,
+              maxHeight: overflowBoxHeight,
+              alignment: Alignment(0, _offsetY),
+              child: CalendarCore(
+                constraints: constraints,
+                pageController: _pageController,
+                scrollPhysics: _canScrollHorizontally ? PageScrollPhysics() : NeverScrollableScrollPhysics(),
+                firstDay: widget.firstDay,
+                lastDay: widget.lastDay,
+                startingDayOfWeek: widget.startingDayOfWeek,
+                calendarFormat: _format,
+                previousIndex: _previousIndex,
+                focusedDay: _focusedDay,
+                sixWeekMonthsEnforced: widget.sixWeekMonthsEnforced,
+                dowVisible: widget.dowVisible,
+                dowHeight: widget.dowHeight,
+                rowHeight: widget.rowHeight,
+                dowDecoration: widget.dowDecoration,
+                rowDecoration: widget.rowDecoration,
+                tableBorder: widget.tableBorder,
+                onPageChanged: (index, focusedMonth) {
+                  if (!_pageCallbackDisabled) {
+                    DateTime temp = focusedMonth;
+                    if (!isSameDay(_focusedDay, focusedMonth)) {
+                      _focusedDay = focusedMonth;
+                      if (_isSameMonth(_focusedDay, _selectedDay) && _format == CalendarFormat.month) {
+                        _focusedDay = _selectedDay;
+                        temp = _selectedDay;
+                        _offsetY = _getOffsetY();
                       }
-
-                      if (_format == CalendarFormat.month &&
-                          !widget.sixWeekMonthsEnforced &&
-                          !constraints.hasBoundedHeight) {
-                        final rowCount = _getRowCount(
-                          _format,
-                          focusedMonth,
-                        );
-                        final double tempHeight = _getPageHeight(rowCount);
-                        if (tempHeight != _pageHeight) {
-                          setState(() {
-                            _pageHeight = tempHeight;
-                            realHeight = _pageHeight;
-                            _oldHeight = _pageHeight;
-                          });
-                        }
-                      }
-
-                      _previousIndex = index;
-                      widget.onPageChanged?.call(temp);
                     }
 
-                    _pageCallbackDisabled = false;
-                  },
-                  dowBuilder: widget.dowBuilder,
-                  dayBuilder: (context, day, focusedMonth) {
-                    return GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () {
-                        _selectedDay = day;
-                        if (widget.onTapDay != null) widget.onTapDay!(day);
-                      },
-                      onLongPress: () {
-                        _selectedDay = day;
-                        if (widget.onLongTapDay != null) widget.onLongTapDay!(day);
-                      },
-                      child: widget.dayBuilder(context, day, focusedMonth),
-                    );
-                  },
-                ),
+                    if (_format == CalendarFormat.month &&
+                        !widget.sixWeekMonthsEnforced &&
+                        !constraints.hasBoundedHeight) {
+                      final rowCount = _getRowCount(
+                        _format,
+                        focusedMonth,
+                      );
+                      final double tempHeight = _getPageHeight(rowCount);
+                      if (tempHeight != _pageHeight) {
+                        _pageHeight = tempHeight;
+                        realHeight.value = _pageHeight;
+                        _oldHeight = _pageHeight;
+                      }
+                    }
+
+                    _previousIndex = index;
+                    widget.onPageChanged?.call(temp);
+                  }
+
+                  _pageCallbackDisabled = false;
+                },
+                dowBuilder: widget.dowBuilder,
+                dayBuilder: (context, day, focusedMonth) {
+                  return GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      _selectedDay = day;
+                      if (widget.onTapDay != null) widget.onTapDay!(day);
+                    },
+                    onLongPress: () {
+                      _selectedDay = day;
+                      if (widget.onLongTapDay != null) widget.onLongTapDay!(day);
+                    },
+                    child: widget.dayBuilder(context, day, focusedMonth),
+                  );
+                },
               ),
             ),
           ),
