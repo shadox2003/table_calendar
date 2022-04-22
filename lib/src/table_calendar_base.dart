@@ -235,6 +235,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
         return;
       }
       setState(() {
+        /// 周视图下拉更新显示
         _format = CalendarFormat.month;
         _offsetY = _getOffsetY();
       });
@@ -272,7 +273,9 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
       cross = true;
     } else {
       if (widget.calendarFormat == CalendarFormat.week && _direction == SwipeDirection.up) {
-        _format = CalendarFormat.week;
+        setState(() {
+          _format = CalendarFormat.week;
+        });
         _updatePage();
         _startAnimation(_oldHeight, _week);
         return;
