@@ -98,6 +98,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   late SwipeDirection _direction;
   GestureController? _gestureController;
   late DateTime _selectedDay;
+  double _offsetY = -1;
 
   @override
   void initState() {
@@ -137,6 +138,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
       onVerticalDragEnd: _onDragEnd,
     );
     if (widget.onGestureController != null) widget.onGestureController!(_gestureController!);
+    _offsetY = _getOffsetY();
   }
 
   @override
@@ -210,7 +212,10 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   }
 
   void _onDragDown() {
-    isDrag = true;
+    setState(() {
+      isDrag = true;
+      _offsetY = _getOffsetY();
+    });
   }
 
   void _onDragUpdate(double offsetY, double direction) {
@@ -350,7 +355,6 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
         final double _week = _getPageHeight(_getRowCount(CalendarFormat.week, _focusedDay));
         double overflowBoxHeight = _format == CalendarFormat.week ? _week : _monthHeight;
         overflowBoxHeight = isDrag ? _monthHeight : overflowBoxHeight;
-
         return GestureDetector(
           onVerticalDragDown: (detail) {
             _onDragDown();
@@ -368,7 +372,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
               child: OverflowBox(
                 minHeight: _week,
                 maxHeight: overflowBoxHeight,
-                alignment: Alignment(0, _getOffsetY()),
+                alignment: Alignment(0, _offsetY),
                 child: CalendarCore(
                   constraints: constraints,
                   pageController: _pageController,

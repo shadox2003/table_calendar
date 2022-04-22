@@ -18,6 +18,11 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
   GestureController? _gestureController;
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -63,20 +68,27 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
               _focusedDay = focusedDay;
             },
           ),
-          // Expanded(
-          //   child: Listener(
-          //       onPointerDown: (sender) {
-          //         _gestureController?.onVerticalDragDown!();
-          //       },
-          //       onPointerMove: (sender) {
-          //         _gestureController?.onVerticalDragUpdate!(sender.delta.dy, sender.delta.direction);
-          //       },
-          //       onPointerUp: (sender) {
-          //         _gestureController?.onVerticalDragEnd!();
-          //       },
-          //       child: ListView.builder(
-          //           physics: NeverScrollableScrollPhysics(), itemBuilder: (conte, index) => Text(index.toString()))),
-          // )
+          Expanded(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onVerticalDragEnd: (sender) {
+                _gestureController?.onVerticalDragEnd!();
+              },
+              onVerticalDragDown: (sender) {
+                _gestureController?.onVerticalDragDown!();
+              },
+              onVerticalDragUpdate: (sender) {
+                _gestureController?.onVerticalDragUpdate!(sender.delta.dy, sender.delta.direction);
+              },
+              child: IgnorePointer(
+                ignoring: true,
+                child: ListView.builder(
+                  itemCount: 100,
+                  itemBuilder: (conte, index) => Text(index.toString()),
+                ),
+              ),
+            ),
+          )
         ],
       ),
     );
