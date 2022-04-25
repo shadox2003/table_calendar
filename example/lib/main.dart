@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:table_calendar_example/custom_hero/screen1.dart';
 
 import 'pages/basics_example.dart';
 import 'pages/complex_example.dart';
@@ -20,7 +21,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'TableCalendar Example',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        brightness: Brightness.dark,
+        primarySwatch: Colors.blueGrey,
+        backgroundColor: Colors.blueGrey,
+        splashColor: Colors.blueGrey,
       ),
       home: StartPage(),
     );
@@ -38,6 +42,7 @@ class _StartPageState extends State<StartPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('TableCalendar Example'),
+        elevation: 0,
       ),
       body: Center(
         child: Column(
@@ -84,6 +89,13 @@ class _StartPageState extends State<StartPage> {
               ),
             ),
             const SizedBox(height: 20.0),
+            ElevatedButton(
+              child: Text('Screen1'),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => Screen1()),
+              ),
+            ),
           ],
         ),
       ),

@@ -254,7 +254,6 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
       begin: from,
       end: to,
     ).animate(_controller);
-
     _controller.forward();
   }
 

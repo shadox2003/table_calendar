@@ -76,8 +76,7 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
                 y = e.position.dy;
                 // print("用户手指按下：${e.position.dy}");
               },
-              //手指滑动时会触发此回调
-              onPointerMove: (PointerMoveEvent e) {
+              onPointerUp: (e) {
                 // 手势滑动 触发 日历的周月视图 切换
                 if (_calendarFormat == CalendarFormat.month) {
                   // 展开状态
