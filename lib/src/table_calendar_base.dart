@@ -127,6 +127,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
           _focusedDay = _selectedDay;
           widget.onPageChanged?.call(_focusedDay);
         }
+        _oldHeight = realHeight.value;
         // print("offset: $_offsetY, isDrag: $isDrag, $_format, focuseDay=$_focusedDay, _selectedDay = $_selectedDay");
       }
     });
