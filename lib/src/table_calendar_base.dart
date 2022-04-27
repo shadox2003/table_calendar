@@ -453,10 +453,12 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
                     behavior: HitTestBehavior.opaque,
                     onTap: () {
                       _selectedDay = day;
+                      _offsetY = _getOffsetY();
                       if (widget.onTapDay != null) widget.onTapDay!(day);
                     },
                     onLongPress: () {
                       _selectedDay = day;
+                      _offsetY = _getOffsetY();
                       if (widget.onLongTapDay != null) widget.onLongTapDay!(day);
                     },
                     child: widget.dayBuilder(context, day, focusedMonth),
