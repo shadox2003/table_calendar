@@ -451,10 +451,12 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
                   return GestureDetector(
                     behavior: HitTestBehavior.opaque,
                     onTap: () {
+                      if (isSameDay(_selectedDay, day)) return;
                       _selectedDay = day;
                       if (widget.onTapDay != null) widget.onTapDay!(day);
                     },
                     onLongPress: () {
+                      if (isSameDay(_selectedDay, day)) return;
                       _selectedDay = day;
                       if (widget.onLongTapDay != null) widget.onLongTapDay!(day);
                     },

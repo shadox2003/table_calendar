@@ -14,6 +14,7 @@ class _Screen2State extends State<Screen2> {
   @override
   Widget build(BuildContext context) {
     return Material(
+      color: Colors.transparent,
       child: GestureDetector(
         onPanUpdate: (detail) {
           setState(() {
