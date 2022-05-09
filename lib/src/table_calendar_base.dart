@@ -106,6 +106,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
     super.initState();
     _focusedDay = widget.focusedDay;
     _selectedDay = widget.focusedDay;
+    _format = widget.calendarFormat;
     final rowCount = _getRowCount(_format, _focusedDay);
     _pageHeight = _getPageHeight(rowCount);
     _oldHeight = _pageHeight;
