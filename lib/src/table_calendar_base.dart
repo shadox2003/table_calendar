@@ -36,6 +36,7 @@ class TableCalendarBase extends StatefulWidget {
   final void Function(PageController pageController)? onCalendarCreated;
   final Function(DateTime day)? onTapDay;
   final Function(DateTime day)? onLongTapDay;
+  final Function(AnimationStatus status)? onAnimationFinish;
 
   TableCalendarBase({
     Key? key,
@@ -73,6 +74,7 @@ class TableCalendarBase extends StatefulWidget {
     this.onPageChanged,
     this.onCalendarCreated,
     this.onGestureController,
+    this.onAnimationFinish,
   })  : assert(!dowVisible || (dowHeight != null && dowBuilder != null)),
         assert(isSameDay(focusedDay, firstDay) || focusedDay.isAfter(firstDay)),
         assert(isSameDay(focusedDay, lastDay) || focusedDay.isBefore(lastDay)),
@@ -131,6 +133,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
         _oldHeight = realHeight.value;
         // print("offset: $_offsetY, isDrag: $isDrag, $_format, focuseDay=$_focusedDay, _selectedDay = $_selectedDay");
       }
+      if (widget.onAnimationFinish != null) widget.onAnimationFinish!(status);
     });
     _controller.addListener(() {
       if (_animation != null) {

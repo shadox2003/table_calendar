@@ -198,6 +198,7 @@ class TableCalendar<T> extends StatefulWidget {
   /// Called when the calendar is created. Exposes its PageController.
   final void Function(PageController pageController)? onCalendarCreated;
   final void Function(GestureController gestureController)? onGestureController;
+  final Function(AnimationStatus status)? onAnimationFinish;
 
   /// Creates a `TableCalendar` widget.
   TableCalendar({
@@ -254,6 +255,7 @@ class TableCalendar<T> extends StatefulWidget {
     this.onFormatChanged,
     this.onCalendarCreated,
     this.onGestureController,
+    this.onAnimationFinish,
   })  : assert(availableCalendarFormats.keys.contains(calendarFormat)),
         assert(availableCalendarFormats.length <= CalendarFormat.values.length),
         assert(weekendDays.isNotEmpty
@@ -499,6 +501,7 @@ class _TableCalendarState<T> extends State<TableCalendar<T>> {
             simpleSwipeConfig: widget.simpleSwipeConfig,
             sixWeekMonthsEnforced: widget.sixWeekMonthsEnforced,
             onVerticalSwipe: _swipeCalendarFormat,
+            onAnimationFinish: widget.onAnimationFinish,
             onPageChanged: (focusedDay) {
               setState(() {
                 _focusedDay.value = focusedDay;
