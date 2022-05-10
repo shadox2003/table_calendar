@@ -37,6 +37,7 @@ class TableCalendarBase extends StatefulWidget {
   final Function(DateTime day)? onTapDay;
   final Function(DateTime day)? onLongTapDay;
   final Function(AnimationStatus status)? onAnimationFinish;
+  final bool enableGestureAnimation;
 
   TableCalendarBase({
     Key? key,
@@ -52,6 +53,7 @@ class TableCalendarBase extends StatefulWidget {
     required this.rowHeight,
     this.sixWeekMonthsEnforced = false,
     this.dowVisible = true,
+    this.enableGestureAnimation = true,
     this.dowDecoration,
     this.rowDecoration,
     this.tableBorder,
@@ -90,7 +92,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   late DateTime _focusedDay;
   late int _previousIndex;
   late bool _pageCallbackDisabled;
-  late AnimationController _controller;
+  AnimationController? _controller;
   late double _oldHeight;
   Animation? _animation;
   late final ValueNotifier<double> realHeight;
@@ -122,10 +124,10 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
     _previousIndex = initialPage;
     _pageCallbackDisabled = false;
     _controller = AnimationController(vsync: this, duration: widget.formatAnimationDuration);
-    _controller.addStatusListener((status) {
+    _controller!.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _animation = null;
-        _controller.reset();
+        _controller!.reset();
         if (_isSameMonth(_focusedDay, _selectedDay) && _format == CalendarFormat.month) {
           _focusedDay = _selectedDay;
           widget.onPageChanged?.call(_focusedDay);
@@ -135,18 +137,20 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
       }
       if (widget.onAnimationFinish != null) widget.onAnimationFinish!(status);
     });
-    _controller.addListener(() {
+    _controller!.addListener(() {
       if (_animation != null) {
         realHeight.value = _animation!.value;
       }
     });
 
-    _gestureController = GestureController(
-      onVerticalDragDown: _onDragDown,
-      onVerticalDragUpdate: _onDragUpdate,
-      onVerticalDragEnd: _onDragEnd,
-    );
-    if (widget.onGestureController != null) widget.onGestureController!(_gestureController!);
+    if (widget.onGestureController != null) {
+      _gestureController = GestureController(
+        onVerticalDragDown: _onDragDown,
+        onVerticalDragUpdate: _onDragUpdate,
+        onVerticalDragEnd: _onDragEnd,
+      );
+      widget.onGestureController!(_gestureController!);
+    }
     _offsetY = _getOffsetY();
   }
 
@@ -175,7 +179,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   @override
   void dispose() {
     _pageController.dispose();
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -258,8 +262,8 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
     _animation = Tween<double>(
       begin: from,
       end: to,
-    ).animate(_controller);
-    _controller.forward();
+    ).animate(_controller!);
+    _controller?.forward();
   }
 
   void _onDragEnd() {
@@ -375,16 +379,16 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
         //print("offset: $_offsetY, isDrag: $isDrag $overflowBoxHeight, $_format, focuseDay=$_focusedDay, _selectedDay = $_selectedDay");
         return GestureDetector(
           onVerticalDragUpdate: (detail) {
-            _onDragUpdate(detail.delta.dy, detail.delta.direction);
+            if (widget.enableGestureAnimation) _onDragUpdate(detail.delta.dy, detail.delta.direction);
           },
           onVerticalDragEnd: (detail) {
-            _onDragEnd();
+            if (widget.enableGestureAnimation) _onDragEnd();
           },
           onVerticalDragStart: (detail) {
-            _onDragDown();
+            if (widget.enableGestureAnimation) _onDragDown();
           },
           onVerticalDragCancel: () {
-            isDrag = false;
+            if (widget.enableGestureAnimation) isDrag = false;
           },
           child: ValueListenableBuilder<double>(
             valueListenable: realHeight,

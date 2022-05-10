@@ -198,6 +198,10 @@ class TableCalendar<T> extends StatefulWidget {
   /// Called when the calendar is created. Exposes its PageController.
   final void Function(PageController pageController)? onCalendarCreated;
   final void Function(GestureController gestureController)? onGestureController;
+  // 是否添加手势动画
+  final bool enableGestureAnimation;
+
+  /// 松手动画执行完成回调
   final Function(AnimationStatus status)? onAnimationFinish;
 
   /// Creates a `TableCalendar` widget.
@@ -222,6 +226,7 @@ class TableCalendar<T> extends StatefulWidget {
     this.pageAnimationEnabled = true,
     this.sixWeekMonthsEnforced = false,
     this.shouldFillViewport = false,
+    this.enableGestureAnimation = true,
     this.rowHeight = 52.0,
     this.daysOfWeekHeight = 16.0,
     this.formatAnimationDuration = const Duration(milliseconds: 200),
@@ -502,6 +507,7 @@ class _TableCalendarState<T> extends State<TableCalendar<T>> {
             sixWeekMonthsEnforced: widget.sixWeekMonthsEnforced,
             onVerticalSwipe: _swipeCalendarFormat,
             onAnimationFinish: widget.onAnimationFinish,
+            enableGestureAnimation: widget.enableGestureAnimation,
             onPageChanged: (focusedDay) {
               setState(() {
                 _focusedDay.value = focusedDay;
