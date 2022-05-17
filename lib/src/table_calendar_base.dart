@@ -152,7 +152,6 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
         updateSelectedDay: (day) {
           _selectedDay = DateTime.utc(day.year, day.month, day.day); // 防止和日历日期不一致
           _offsetY = _getOffsetY();
-          if (widget.onTapDay != null) widget.onTapDay!(day);
         },
       );
       widget.onGestureController!(_calendarController!);
