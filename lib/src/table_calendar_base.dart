@@ -32,7 +32,7 @@ class TableCalendarBase extends StatefulWidget {
   final Map<CalendarFormat, String> availableCalendarFormats;
   final Function(SwipeDirection direction, bool cross)? onVerticalSwipe;
   final void Function(DateTime focusedDay)? onPageChanged;
-  final Function(GestureController gestureController)? onGestureController;
+  final Function(CalendarController gestureController)? onGestureController;
   final void Function(PageController pageController)? onCalendarCreated;
   final Function(DateTime day)? onTapDay;
   final Function(DateTime day)? onLongTapDay;
@@ -100,7 +100,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   bool dragCancel = false;
   CalendarFormat _format = CalendarFormat.month;
   late SwipeDirection _direction;
-  GestureController? _gestureController;
+  CalendarController? _calendarController;
   // 用户选中的日期
   late DateTime _selectedDay;
   double _offsetY = -1;
@@ -133,6 +133,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
           widget.onPageChanged?.call(_focusedDay);
         }
         _oldHeight = realHeight.value;
+        isDrag = false;
         // print("offset: $_offsetY, isDrag: $isDrag, $_format, focuseDay=$_focusedDay, _selectedDay = $_selectedDay");
       }
       if (widget.onAnimationFinish != null) widget.onAnimationFinish!(status);
@@ -144,12 +145,17 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
     });
 
     if (widget.onGestureController != null) {
-      _gestureController = GestureController(
+      _calendarController = CalendarController(
         onVerticalDragDown: _onDragDown,
         onVerticalDragUpdate: _onDragUpdate,
         onVerticalDragEnd: _onDragEnd,
+        updateSelectedDay: (day) {
+          _selectedDay = DateTime.utc(day.year, day.month, day.day); // 防止和日历日期不一致
+          _offsetY = _getOffsetY();
+          if (widget.onTapDay != null) widget.onTapDay!(day);
+        },
       );
-      widget.onGestureController!(_gestureController!);
+      widget.onGestureController!(_calendarController!);
     }
     _offsetY = _getOffsetY();
   }
@@ -340,7 +346,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
     if (_format == CalendarFormat.month) {
       if (_isSameMonth(_focusedDay, _selectedDay)) _temp = _selectedDay;
     }
-    final currentIndex = _calculateFocusedPage(_format, widget.firstDay, _temp);
+    final currentIndex = _calculateFocusedPage(CalendarFormat.month, widget.firstDay, _temp);
     final baseDay = _getBaseDay(CalendarFormat.month, currentIndex);
     final visibleRange = _daysInMonth(baseDay);
     final visibleDays = _daysInRange(visibleRange.start, visibleRange.end);
@@ -571,10 +577,16 @@ class _Clipper extends CustomClipper<Rect> {
   }
 }
 
-class GestureController {
+class CalendarController {
   final Function()? onVerticalDragDown;
   final Function(double offsetY, double direction)? onVerticalDragUpdate;
   final Function()? onVerticalDragEnd;
+  final Function(DateTime selectedDay)? updateSelectedDay;
 
-  GestureController({this.onVerticalDragDown, this.onVerticalDragUpdate, this.onVerticalDragEnd});
+  CalendarController({
+    this.onVerticalDragDown,
+    this.onVerticalDragUpdate,
+    this.onVerticalDragEnd,
+    this.updateSelectedDay,
+  });
 }

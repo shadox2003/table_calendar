@@ -15,7 +15,7 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  GestureController? _gestureController;
+  CalendarController? calendarController;
   double y = 0;
   @override
   void initState() {
@@ -37,7 +37,7 @@ class _TableBasicsExampleState extends State<TableBasicsExample> {
             calendarFormat: _calendarFormat,
             enableGestureAnimation: false,
             onGestureController: (sender) {
-              _gestureController = sender;
+              calendarController = sender;
             },
             selectedDayPredicate: (day) {
               // Use `selectedDayPredicate` to determine which day is currently selected.

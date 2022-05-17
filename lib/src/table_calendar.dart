@@ -197,7 +197,7 @@ class TableCalendar<T> extends StatefulWidget {
 
   /// Called when the calendar is created. Exposes its PageController.
   final void Function(PageController pageController)? onCalendarCreated;
-  final void Function(GestureController gestureController)? onGestureController;
+  final void Function(CalendarController gestureController)? onGestureController;
   // 是否添加手势动画
   final bool enableGestureAnimation;
 
