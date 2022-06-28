@@ -99,7 +99,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   bool isDrag = false;
   bool dragCancel = false;
   CalendarFormat _format = CalendarFormat.month;
-  late SwipeDirection _direction;
+  SwipeDirection? _direction;
   CalendarController? _calendarController;
   // 用户选中的日期
   late DateTime _selectedDay;
@@ -272,6 +272,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
   }
 
   void _onDragEnd() {
+    if (_direction == null) return; // 没有移动
     if (dragCancel) {
       dragCancel = false;
       return;
@@ -298,7 +299,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> with SingleTicker
       }
     }
     if (widget.onVerticalSwipe != null) {
-      widget.onVerticalSwipe!(_direction, cross);
+      widget.onVerticalSwipe!(_direction!, cross);
     }
     isDrag = false;
   }
